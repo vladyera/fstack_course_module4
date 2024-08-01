@@ -53,6 +53,30 @@ test('unique identifier property of the blog posts is named id', async () => {
   });
 });
 
+test('a valid blog can be added', async () => {
+  const newBlog = {
+    title: 'New Blog',
+    author: 'New Author',
+    url: 'http://example.com/newblog',
+    likes: 12
+  };
+
+  // Get the number of blogs before adding a new one
+  const blogs = await api.get('/api/blogs');
+  const initialLength = blogs.body.length;
+
+  // Make POST request to add the new blog
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/);
+
+  // Get all blogs and verify the total number of blogs
+  const newBlogs = await api.get('/api/blogs');
+  assert.strictEqual(newBlogs.body.length, initialLength + 1);
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
