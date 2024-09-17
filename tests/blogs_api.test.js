@@ -77,6 +77,25 @@ test('a valid blog can be added', async () => {
   assert.strictEqual(newBlogs.body.length, initialLength + 1);
 });
 
+test('blog with missing likes defaults to 0', async () => {
+  const newBlog = {
+    title: 'Blog without likes',
+    author: 'New Author',
+    url: 'http://example.com/blogwithoutlikes'
+  };
+
+  // Make POST request to add the new blog
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/);
+
+  const allBlogs = await api.get('/api/blogs');
+  const addedBlog = allBlogs.body.find(blog => blog.title === newBlog.title);
+  assert.strictEqual(addedBlog.likes, 0);
+});
+
 after(async () => {
   await mongoose.connection.close();
 });
